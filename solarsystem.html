@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0"/>
+  <title>Designers</title>
+  <link rel="shortcut icon" href="peace.png"/>
+  <link rel="stylesheet" type="text/css" href="animate.css">
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <style type="text/css">
+  body, html {
+    cursor:url(cursor.png), auto;
+    padding: 0px;
+    margin:0px;
+    overflow: hidden;
+}
+
+body, html {
+    background-color: #000;
+    color: #fff;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+canvas {
+    position:absolute;
+    top:0;
+    left:0
+}
+  </style>
+</head>
+<body>
+	<canvas id="bgCanvas"></canvas>
+<img src="https://static.wixstatic.com/media/2cd43b_2ed52f63bdfa4bd9a3dfb6d00aa6936f~mv2_d_4000_1701_s_2.png" style="position:fixed;width:100%;bottom:-50px">
+<script type="text/javascript">(function () {
+      console.log("#in");
+      var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame || function (callback) {
+              window.setTimeout(callback, 1000 / 160);
+          };
+      window.requestAnimationFrame = requestAnimationFrame;
+      console.log("#in2:"+requestAnimationFrame);
+  })();
+
+var background = document.getElementById("bgCanvas"),
+    bgCtx = background.getContext("2d"),
+    width = window.innerWidth,
+    height = document.body.offsetHeight;
+
+(height < 400) ? height = 400 : height;
+
+background.width = width;
+background.height = height;
+
+function Mountain(options){
+  options = options || [];
+  this.mountain = document.createElement("canvas");
+  this.mouCtx = this.mountain.getContext("2d");
+  this.mountain.width = width;
+  this.mountain.height = height;
+  this.fillStyle =  "red";
+  this.mHeight = options.mHeight || height;
+  this.points=[];
+  this.points[0] = this.mHeight;
+  this.points[1] = this.mHeight;
+  document.body.appendChild(this.mountain);
+}
+
+Mountain.prototype.update = function(){
+  this.mouCtx.clearRect(0,0,width,height);
+  this.mouCtx.fillStyle = this.fillStyle;
+  this.mouCtx.beginPath();
+  this.mouCtx.moveTo(0, this.points[0]);       
+  this.mouCtx.lineTo(width, this.points[1]);
+  this.mouCtx.lineTo(width, this.mounatin.height);
+  this.mouCtx.lineTo(0, this.mountain.height);
+  this.mouCtx.lineTo(0, this.points[0]);
+  this.mouCtx.fill();
+}
+
+function Star(options){
+  this.size = Math.random() * 2;
+  this.speed = Math.random() * .05;
+  this.x = options.x;
+  this.y = options.y;
+}
+
+Star.prototype.reset = function () {
+  this.size = Math.random() * 2;
+  this.speed = Math.random() * .05;
+  this.x = width;
+  this.y = Math.random() * height;
+}
+
+Star.prototype.update = function () {
+  this.x -= this.speed;
+  if(this.x < 0){
+    this.reset();
+  }else{
+    bgCtx.fillRect(this.x, this.y, this.size, this.size);
+  }
+}
+
+function ShootingStar() {
+      this.reset();
+  }
+
+ShootingStar.prototype.reset = function () {
+  this.x = Math.random() * width;
+  this.y = 0;
+  this.len = (Math.random() * 80) + 10;
+  this.speed = (Math.random() * 10) + 6;
+  this.size = (Math.random() * 1) + 0.1;
+  // this is used so the shooting stars arent constant
+  this.waitTime = new Date().getTime() + (Math.random() * 3000) + 500;
+  this.active = false;
+}
+
+ ShootingStar.prototype.update = function () {
+      if (this.active) {
+          this.x -= this.speed;
+          this.y += this.speed;
+          if (this.x < 0 || this.y >= height) {
+              this.reset();
+          } else {
+              bgCtx.lineWidth = this.size;
+              bgCtx.beginPath();
+              bgCtx.moveTo(this.x, this.y);
+              bgCtx.lineTo(this.x + this.len, this.y - this.len);
+              bgCtx.stroke();
+          }
+      } else {
+          if (this.waitTime < new Date().getTime()) {
+              this.active = true;
+          }
+      }
+  }
+  
+var entities = [];
+　//entities.push(new Mountain());
+
+for (var i = 0; i < height; i++) {
+  entities.push(new Star({
+    x: Math.random() * width,
+    y: Math.random() * height
+  }));
+}
+entities.push(new ShootingStar());
+//entities.push(new ShootingStar());
+
+function animate(){
+  bgCtx.fillStyle = 'black';
+  bgCtx.fillRect(0, 0, width, height);
+  bgCtx.fillStyle = "#FFFFFF";
+  bgCtx.strokeStyle = '#ffffff';
+  var entLn = entities.length;
+  while(entLn--){
+    entities[entLn].update();
+  }
+  requestAnimationFrame(animate);
+}
+animate();</script>
+</body>
+</html>
